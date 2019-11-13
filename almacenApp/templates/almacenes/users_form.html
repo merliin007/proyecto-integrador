@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+{% block header %}
+<p><h4>Agregar un nuevo usuario</h4></p>
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="col-lg-8 col-md-5 col-sm-8">
+        {{form.as_p}}
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

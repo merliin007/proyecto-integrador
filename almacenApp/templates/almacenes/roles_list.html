@@ -1,0 +1,26 @@
+{% extends 'base/base.html' %}
+{% block header %}
+<p><h4>Listado de Roles</h4></p>
+{% endblock%}
+{% block content %}
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <td>Role Id</td>
+        <td>Role</td>
+    </tr>
+    </thead>
+    <tbody>
+        {% if roles_obj %}
+        {% for role in roles_obj %}
+        <tr>
+            <td>{{role.id}}</td>
+            <td>{{role.role}}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+            <h4>No existen roles registrados</h4>
+        {% endif %}
+    </tbody>
+    </table>
+{% endblock %}
