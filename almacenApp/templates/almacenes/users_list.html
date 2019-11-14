@@ -10,9 +10,10 @@
     <thead>
         <tr>
             <td>Id</td>
+            <td>Nombre Usuario</td>
+            <td>Email</td>
             <td>Nombre</td>
-            <td>Apellido</td>
-            <td>User Name</td>
+            <td>Apellidos</td>
             <td>Editar</td>
         </tr>
     </thead>
@@ -20,9 +21,10 @@
         {% for user in object_list %}
         <tr>
             <td>{{user.id}}</p></td>
-            <td>{{user.firstName}}</p></td>
-            <td>{{user.lastName}}</p></td>
-            <td>{{user.userName}}</p></td>
+            <td>{{user.username}}</p></td>
+            <td>{{user.email}}</p></td>
+            <td>{{user.first_name}}</p></td>
+            <td>{{user.last_name}}</p></td>
             <td>
                 <a class="btn btn-outline-warning" href="{% url 'userEdit' user.id %}" role="button">Editar</a>
                 <a class="btn btn-outline-danger" href="{% url 'userDelete' user.id %}" role="button">Eliminar</a>

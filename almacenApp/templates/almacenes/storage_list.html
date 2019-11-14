@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+{% block header %}
+<p>
+    <h4>Listado de almacenes registrados</h4>
+</p>
+{% endblock%}
+{% block content %}
+{% if object_list %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>Id</td>
+            <td>Almacen</td>
+            <td>Direccion</td>
+            <td>Editar</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in object_list %}
+        <tr>
+            <td>{{user.id}}</p></td>
+            <td>{{user.nombre}}</p></td>
+            <td>{{user.direccion}}</p></td>
+            <td>
+                <a class="btn btn-outline-warning" href="#" role="button">Editar</a>
+                <a class="btn btn-outline-danger" href="#" role="button">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <h5>No existen almacenes registrados</h5>
+        {% endif %}
+</tbody>
+</table>
+{% endblock %}

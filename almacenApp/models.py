@@ -1,5 +1,6 @@
+from django.contrib import auth
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Role(models.Model):
     role = models.CharField(max_length=15)
@@ -19,3 +20,16 @@ class User(models.Model):
         return self.firstName + ' ' + self.lastName
 
 
+class Storage(models.Model):
+    storageNumber = models.SmallIntegerField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+
+
+class Almacen(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=500)
+
+
+class Perfil(models.Model):
+    usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
+    almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)

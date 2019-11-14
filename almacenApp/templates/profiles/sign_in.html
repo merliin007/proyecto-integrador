@@ -1,0 +1,15 @@
+{% extends 'base/sign_base.html' %}
+
+{% block title %}Inicia Sesión{% endblock %}
+
+{% block content %}
+<div class="col-lg-8 col-md-5 col-sm-8">
+    <form method="POST">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit" class="btn btn-primary">Entrar</button>
+        <a href="{% url 'home' %}" role="button" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+{% endblock content %}
