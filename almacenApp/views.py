@@ -1,7 +1,7 @@
 from django.contrib import auth
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import render, redirect
-from almacenApp.models import Role, User, Almacen
+from almacenApp.models import Role, User, Almacen, UsuarioAdmin
 from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
@@ -16,6 +16,11 @@ class SignUpView(CreateView):
         perfil = form['perfil'].save(commit=False)
         perfil.usuario = user
         perfil.save()
+
+        userAdmin = UsuarioAdmin
+        userAdmin.usuario = user
+        userAdmin.load()
+
         return redirect('/home/')
 
 

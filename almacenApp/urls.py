@@ -5,6 +5,7 @@ from django.urls import path
 from almacenApp.views import UserList, UserCreate, UserUpdate, UserDelete, HomeView, SignUpView, \
     SignInView, SignOutView, StorageList
 from . import views
+from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -18,6 +19,8 @@ urlpatterns = [
     path('signup/', SignUpView.as_view(), name='sign_up'),
     path('signin/', SignInView.as_view(), name='sign_in'),
     path('signout/', SignOutView.as_view(), name='sign_out'),
+    path('password-change/', PasswordChangeView.as_view(), name='password_change'),
+    path('password-change/done/', PasswordChangeDoneView.as_view(), name='password_change_done'),
 
     path('storages', StorageList.as_view(), name='storages')
 ]
