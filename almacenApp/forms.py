@@ -6,7 +6,27 @@ from django.contrib import auth
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm
 
-from almacenApp.models import User, Perfil
+from almacenApp.models import User, Perfil, Role, Almacen
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = Role
+        fields = [
+            'role',
+            'permission',
+            'almacen',
+        ]
+        labels = {
+            'role': 'Rol',
+            'permission': 'Permiso',
+            'almacen': 'Almacen',
+        }
+        widgets ={
+            'role': forms.TextInput(attrs={'class': 'form-control'}),
+            'permission': forms.CheckboxSelectMultiple(),
+            'almacen': forms.Select(attrs={'class':'form-control'}),
+        }
 
 
 class UsuarioForm(forms.ModelForm):
@@ -72,7 +92,8 @@ class UserModelForm(UserCreationForm):
 class PerfilModelForm(ModelForm):
     class Meta:
         model = Perfil
-        fields = ['almacen'] # No agregar el campo 'persona'
+        # fields = ['almacen'] # No agregar el campo 'persona'
+        fields = ['role'] # No agregar el campo 'persona'
 
 
 class PerfilUserModelForm(MultiModelForm):
@@ -80,3 +101,20 @@ class PerfilUserModelForm(MultiModelForm):
         'user': UserModelForm,
         'perfil': PerfilModelForm,
     }
+
+
+class StorageForm(ModelForm):
+    class Meta:
+        model = Almacen
+        fields =[
+            'nombre',
+            'direccion',
+        ]
+        labels ={
+            'nombre': 'Nombre del Almacen',
+            'direccion': 'Direccion'
+        }
+        widgets={
+            'nombre': forms.TextInput(attrs={'class':'form-control'}),
+            'direccion': forms.Textarea(attrs={'class':'form-control'}),
+        }

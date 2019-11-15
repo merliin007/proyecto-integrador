@@ -2,8 +2,16 @@ from django.contrib import auth
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class Permissions(models.Model):
+    list_users = models.BooleanField(default=False)
+    delete_users = models.BooleanField(default=False)
+    edit_users = models.BooleanField(default=False)
+
+
 class Role(models.Model):
     role = models.CharField(max_length=15)
+    permission = models.ManyToManyField(Permissions, blank=True)
 
     def __str__(self):
         return '{}'.format(self.role)

@@ -5,6 +5,13 @@
 <head>
     {% block extrastatic %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script>
+        function abrir_modal(url){
+    $('#popup').load(url, function(){
+        $(this).modal('show');        });
+    return false;
+}
+    </script>
     {% endblock %}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title%}Mi Almacen {% endblock %}</title>
@@ -38,7 +45,7 @@
                             Roles
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Nuevo</a>
+                            <a class="dropdown-item" href="{% url 'roleAdd' %}">Nuevo</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'rolesList' %}">Listar</a>
                         </div>
@@ -49,7 +56,7 @@
                             Almacenes
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Nuevo</a>
+                            <a class="dropdown-item" href="{% url 'storageAdd' %}">Nuevo</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'storages' %}">Listar</a>
                         </div>
@@ -60,6 +67,8 @@
                             Bienvenido {{user.username}}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="{% url 'pwd_change' %}">Password</a>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'sign_out' %}">Salir</a>
                         </div>
                     </li>

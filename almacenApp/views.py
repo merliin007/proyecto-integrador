@@ -1,9 +1,16 @@
 from django.contrib import auth
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import update_session_auth_hash, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import LoginView, LogoutView, PasswordContextMixin
 from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+
 from almacenApp.models import Role, User, Almacen
-from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
+from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm, RoleForm, StorageForm
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 from django.urls import reverse_lazy
 
 
@@ -17,6 +24,32 @@ class SignUpView(CreateView):
         perfil.usuario = user
         perfil.save()
         return redirect('/home/')
+
+
+class PasswordChange(PasswordContextMixin, FormView):
+    form_class = PasswordChangeForm
+    # success_url = reverse_lazy('password_change_done')
+    success_url = reverse_lazy('index')
+    template_name = 'profiles/password_change.html'
+    title = 'Password change'
+
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        # Updating the password logs out all other sessions for the user
+        # except the current one.
+        update_session_auth_hash(self.request, form.user)
+        return super().form_valid(form)
 
 
 class HomeView(TemplateView):
@@ -36,12 +69,7 @@ def index(request):
     return render(request, "almacenes/index.html", )
 
 
-def roles_list(request):
-    list_roles = Role.objects.all()
-    context = {
-        'roles_obj': list_roles,
-    }
-    return render(request, "almacenes/roles_list.html", context)
+
 
 
 def user_list(request):
@@ -91,7 +119,7 @@ class UserList(ListView):
     template_name = 'almacenes/users_list.html'
 
 
-class UserCreate(CreateView):
+class UserRegister(CreateView):
     model = auth.models.User
     form_class = UserModelForm
     template_name = 'almacenes/users_form.html'
@@ -115,3 +143,41 @@ class StorageList(ListView):
     model = Almacen
     template_name = 'almacenes/storage_list.html'
 
+
+class RoleCreate(CreateView):
+    model = Role
+    form_class = RoleForm
+    template_name = 'almacenes/role_form.html'
+    success_url = reverse_lazy('rolesList')
+
+
+class RoleList(ListView):
+    model = Role
+    template_name = 'almacenes/roles_list.html'
+
+
+class RoleUpdate(UpdateView):
+    model = Role
+    form_class = RoleForm
+    template_name = 'almacenes/role_form.html'
+    success_url = reverse_lazy('rolesList')
+
+
+class StorageCreate(CreateView):
+    model = Almacen
+    form_class = StorageForm
+    template_name = 'almacenes/storage_form.html'
+    success_url = reverse_lazy('storages')
+
+
+class StorageEdit(UpdateView):
+    model = Almacen
+    form_class = StorageForm
+    template_name = 'almacenes/storage_form.html'
+    success_url = reverse_lazy('storages')
+
+
+class StorageDeletion(DeleteView):
+    model = Almacen
+    template_name = 'almacenes/confirm_deletion.html'
+    success_url = reverse_lazy('storages')

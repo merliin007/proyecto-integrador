@@ -5,11 +5,68 @@
 {% endblock %}
 {% block content %}
 <form method="post">
-    {% csrf_token %}
-    <div class="col-lg-8 col-md-5 col-sm-8">
-        {{form.as_p}}
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+	{% csrf_token %}
+
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label>Nombre</label>
+				<input class="form-control" type="text" name="first_name" required>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label >Apellidos</label>
+				<input class="form-control" type="text" name="last_name" required>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label >Nombre de usuario</label>
+				<input class="form-control" type="text" name="username" required>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label >Correo</label>
+				<input class="form-control" type="text" name="email" required>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label >Contraseña</label>
+				<input class="form-control" type="password" name="password1" required>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<label >Confirmar contraseña</label>
+				<input class="form-control" type="password" name="password2" required>
+			</div>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">Guardar</button>
+                <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+			</div>
+		</div>
+	</div>
+
 </form>
 {% endblock %}
+
+
+
