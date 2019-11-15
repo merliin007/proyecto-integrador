@@ -3,15 +3,25 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Almacen(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.TextField(max_length=500)
+
+    def __str__(self):
+        return '{}'.format(self.nombre)
+
+
 class Permissions(models.Model):
-    list_users = models.BooleanField(default=False)
-    delete_users = models.BooleanField(default=False)
-    edit_users = models.BooleanField(default=False)
+    permission = models.CharField(max_length=30, null=False, blank=True)
+
+    def __str__(self):
+        return '{}'.format(self.permission)
 
 
 class Role(models.Model):
     role = models.CharField(max_length=15)
     permission = models.ManyToManyField(Permissions, blank=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, blank=True, default=1)
 
     def __str__(self):
         return '{}'.format(self.role)
@@ -33,11 +43,7 @@ class Storage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
 
-class Almacen(models.Model):
-    nombre = models.CharField(max_length=100)
-    direccion = models.CharField(max_length=500)
-
-
 class Perfil(models.Model):
     usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
-    almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
+    # almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
+    role = models.OneToOneField(Role, on_delete=models.CASCADE)
