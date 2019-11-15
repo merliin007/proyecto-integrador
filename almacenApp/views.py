@@ -8,8 +8,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 
-from almacenApp.models import Role, User, Almacen
-from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm, RoleForm, StorageForm
+from almacenApp.models import Role, User, Almacen, Perfil
+from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm, RoleForm, StorageForm, PerfilForm
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 from django.urls import reverse_lazy
 

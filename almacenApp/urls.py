@@ -32,7 +32,4 @@ urlpatterns = [
     path('storageAdd', login_required(StorageCreate.as_view()), name='storageAdd'),
     path('storageEdit/<pk>/', login_required(StorageEdit.as_view()), name='storageEdit'),
     path('storageDelete/<pk>/', login_required(StorageDeletion.as_view()), name='storageDelete'),
-
-
-
 ]
