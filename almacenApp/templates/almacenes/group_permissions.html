@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+{% block header%}
+<p><h4>Editar permisos</h4></p>
+{% endblock %}
+{% block content%}
+<div class="container">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit" class="btn btn-primary">Cambiar</button>
+        <a href="{% url 'roleAssignList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock%}

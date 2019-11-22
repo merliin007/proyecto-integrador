@@ -1,0 +1,32 @@
+{% extends 'base/base.html' %}
+{% block header%}
+<p><h4>Usuarios, Roles y Almacenes</h4></p>
+{% endblock %}
+{% block content%}
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <td>Id Perfil</td>
+        <td>Nombre</td>
+        <td>Email</td>
+        <td>Rol</td>
+        <td>Almacen</td>
+        <td>Acciones</td>
+    </tr>
+    </thead>
+    <tbody>
+     {% if object_list %}
+        {% for profile in object_list %}
+        <tr>
+            <td>{{profile.id}}</td>
+            <td>{{profile}}</td>
+            <td>{{profile.usuario.email}}</td>
+            <td>{{profile.groups}}</td>
+            <td>{{profile.almacen}}</td>
+            <td><a class="btn btn-outline-warning" href="{% url 'userRoleEdit' profile.id %}" role="button">Editar</a></td>
+        </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+</table>
+{% endblock%}

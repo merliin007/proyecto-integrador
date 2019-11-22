@@ -1,6 +1,8 @@
 from django.contrib import auth
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Almacen(models.Model):
@@ -10,32 +12,10 @@ class Almacen(models.Model):
     def __str__(self):
         return '{}'.format(self.nombre)
 
-
-class Permissions(models.Model):
-    permission = models.CharField(max_length=30, null=False, blank=True)
-
-    def __str__(self):
-        return '{}'.format(self.permission)
-
-
-class Role(models.Model):
-    role = models.CharField(max_length=15)
-    permission = models.ManyToManyField(Permissions, blank=True)
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, blank=True, default=1)
-
-    def __str__(self):
-        return '{}'.format(self.role)
-
-
-class User(models.Model):
-    firstName = models.CharField(max_length=30, null=False)
-    lastName = models.CharField(max_length=30)
-    userName = models.CharField(max_length=15, null=False, unique=True)
-    password = models.CharField(max_length=20, null=False)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return self.firstName + ' ' + self.lastName
+#
+# class GroupPermissions(models.Model):
+#     role = models.ForeignKey(auth.models.Group, on_delete=models.CASCADE, null=True)
+#     perms = models.ForeignKey(auth.models.Permission, on_delete=models.CASCADE, null=True)
 
 
 class Storage(models.Model):
@@ -45,5 +25,17 @@ class Storage(models.Model):
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
-    # almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
-    role = models.OneToOneField(Role, on_delete=models.CASCADE)
+    almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
+    groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)
+
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Perfil.objects.create(usuario=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, created, **kwargs):
+        instance.perfil.save()

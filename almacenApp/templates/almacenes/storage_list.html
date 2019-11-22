@@ -3,11 +3,10 @@
 <p>
     <h4>Listado de almacenes registrados</h4>
 </p>
-
-
 {% endblock%}
 {% block content %}
-{% if object_list %}
+{% if storage %}
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -18,7 +17,8 @@
         </tr>
     </thead>
     <tbody>
-        {% for stg in object_list %}
+
+        {% for stg in storage %}
         <tr>
             <td>{{stg.id}}</p></td>
             <td>{{stg.nombre}}</p></td>
