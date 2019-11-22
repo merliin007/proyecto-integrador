@@ -45,11 +45,14 @@ class Perfil(models.Model):
 class SingletonModel(models.Model):
     class Meta:
         abstract = True
+
     def save(self, *args, **kwargs):
         self.pk = 1
         super(SingletonModel, self).save(*args, **kwargs)
+
     def delete(self, *args, **kwargs):
         pass
+
     @classmethod
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
@@ -57,6 +60,8 @@ class SingletonModel(models.Model):
 
 
 class UsuarioAdmin(SingletonModel):
+    perfil = models.OneToOneField(Perfil, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=100, default='Usuario Administrador')
     identificador = models.CharField(max_length=255, default='ACbcad883c9c3e9d9913a715557dddff99')
+    # groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True, default=1)
 

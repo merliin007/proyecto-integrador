@@ -38,3 +38,12 @@
 
 
 {% endblock content %}
+
+{% block footer%}
+<!--<a href="{% url 'sign_up' %}" role="button" class="btn btn-primary btn-lg btn-block">Registrate</a>-->
+<footer class="footer mt-auto py-3">
+        <div class="container">
+            <a href="{% url 'sign_up' %}"><span class="text-muted">Regístrate</span></a>
+        </div>
+    </footer>
+{% endblock %}

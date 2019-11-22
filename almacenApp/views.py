@@ -1,6 +1,6 @@
 # Created by Miguel Angel Aguilar
 # maac35@gmail.com - nov 2019
-from almacenApp.models import User, Almacen, UsuarioAdmin
+
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -13,12 +13,14 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
-from almacenApp.models import Almacen, Perfil
+from almacenApp.models import Almacen, Perfil, UsuarioAdmin
 from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 
 from django.urls import reverse_lazy
 import pdb
+
+from almacenes.settings import ADMIN_ROLE, MANAGER_ROLE
 
 
 class SignUpView(CreateView):
@@ -27,24 +29,34 @@ class SignUpView(CreateView):
     template_name = 'profiles/profile_form.html'
 
     def form_valid(self, form):
-# <<<<<<< HEAD
-        user = form['user'].save()
-        perfil = form['perfil'].save(commit=False)
-        perfil.usuario = user
-        perfil.save()
+        form.save()
+        user = form.cleaned_data.get('username')
+        pwd = form.cleaned_data.get('password1')
+        usuario = authenticate(username=user, password=pwd)
+        login(self.request, usuario)
 
-        userAdmin = UsuarioAdmin
+        # userAdmin = UsuarioAdmin
+        # userAdmin.usuario = user
+        # userAdmin.load()
+        return redirect(reverse_lazy('home'))
+
+
+class SignUpSuperAdminView(CreateView):
+    model = Perfil
+    form_class = UserModelForm
+    template_name = 'profiles/profile_form.html'
+
+    def form_valid(self, form):
+        form.save()
+        user = form.cleaned_data.get('username')
+        pwd = form.cleaned_data.get('password1')
+        # usuario = authenticate(username=user, password=pwd)
+        # login(self.request, usuario)
+
+        userAdmin = UsuarioAdmin()
         userAdmin.usuario = user
         userAdmin.load()
-
-# =======
-#         form.save()
-#         user = form.cleaned_data.get('username')
-#         pwd = form.cleaned_data.get('password1')
-#         usuario = authenticate(username=user, password=pwd)
-#         login(self.request, usuario)
-# >>>>>>> permissions
-        return redirect('/home/')
+        return redirect(reverse_lazy('home'))
 
 
 class PasswordChange(LoginRequiredMixin, PasswordContextMixin, FormView):
@@ -77,9 +89,18 @@ class HomeView(View):
     @method_decorator(login_required)
     def get(self, request):
         # context = user.get_all_permissions()
-        context = request.user.perfil.groups.name
-        # pdb.set_trace()
-        return render(request, 'profiles/home.html', dict.fromkeys('perm', context))
+        # context = request.user.perfil.groups.name
+
+        try:
+            context = {
+                'almacen': request.user.perfil.almacen.nombre,
+            }
+        except:
+            context = {
+                'almacen': 'Sin asignar',
+            }
+
+        return render(request, 'profiles/home.html', context)
 
 
 class SignInView(LoginView):
@@ -91,12 +112,27 @@ class SignOutView(LogoutView):
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
-    template_name='almacenes/index.html'
+    template_name = 'almacenes/index.html'
 
 
 class UserList(LoginRequiredMixin, ListView):
     model = User
     template_name = 'almacenes/users_list.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            group = request.user.perfil.groups.name
+        except:
+            group = ""
+
+        if ADMIN_ROLE in group or MANAGER_ROLE in group:
+            context = {
+                'users': self.model.objects.all(),
+            }
+            # pdb.set_trace()
+            return render(request, self.template_name, context)
+        else:
+            return render(request, 'almacenes/403.html')
 
 
 class UserRegister(CreateView):
@@ -130,7 +166,7 @@ class StorageList(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         group = request.user.perfil.groups.name
-        if 'Administrators' in group:
+        if ADMIN_ROLE in group or MANAGER_ROLE in group:
             context = {
                 'storage': self.model.objects.all(),
             }

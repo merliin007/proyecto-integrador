@@ -6,9 +6,10 @@
 {% endblock %}
 
 {% block content %}
-<p>{{p}}</p>
+
     {% if user.is_authenticated %}
         <h1>Hola {{ user.username }}</h1>
+        <p><h4>Almacen: {{almacen}}</h4></p>
 
     {% else %}
         <a href="{% url 'sign_up' %}" role="button" class="btn btn-primary btn-lg btn-block">Registrate</a>

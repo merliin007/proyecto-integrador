@@ -5,7 +5,7 @@
 </p>
 {% endblock%}
 {% block content %}
-{% if object_list %}
+{% if users %}
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -18,7 +18,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in object_list %}
+        {% for user in users %}
         <tr>
             <td>{{user.id}}</p></td>
             <td>{{user.username}}</p></td>
