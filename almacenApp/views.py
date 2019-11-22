@@ -1,9 +1,6 @@
-from django.contrib import auth
-from django.contrib.auth.views import LoginView, LogoutView
-from django.shortcuts import render, redirect
+# Created by Miguel Angel Aguilar
+# maac35@gmail.com - nov 2019
 from almacenApp.models import User, Almacen, UsuarioAdmin
-# from almacenApp.forms import UsuarioForm, PerfilUserModelForm, UserModelForm
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -12,15 +9,13 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView, PasswordContextMixin
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect, render_to_response
-from django.template import RequestContext
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
-
 from almacenApp.models import Almacen, Perfil
-from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit, GroupPermissionsForm
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView, DetailView
+from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 
 from django.urls import reverse_lazy
 import pdb

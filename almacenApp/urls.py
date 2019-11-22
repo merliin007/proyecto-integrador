@@ -1,12 +1,10 @@
 # Created by Miguel Angel Aguilar 
 # maac35@gmail.com - nov 2019
-from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from django.urls import path
 from almacenApp.views import UserList, UserRegister, UserUpdate, UserDelete, HomeView, SignUpView, \
     SignInView, SignOutView, StorageList, RoleCreate, RoleList, RoleUpdate, StorageCreate, StorageEdit, \
     StorageDeletion, RoleAssignList, RoleAssignEdit, IndexView
 
-from . import views
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 
 urlpatterns = [
@@ -14,8 +12,7 @@ urlpatterns = [
     path('roles', RoleList.as_view(), name='rolesList'),
     path('roleAdd', RoleCreate.as_view(), name='roleAdd'),
     path('roleEdit/<pk>', RoleUpdate.as_view(), name='roleEdit'),
-    # path('rolePermissionsEdit/<pk>', GroupPermissionsEdit.as_view(), name='groupPermissionsEdit'),
-    # path('rolePermissionsCreate/', GroupPermissionsCreate.as_view(), name='groupPermissionsCreate'),
+
     path('roleAssign/', RoleAssignList.as_view(), name='roleAssignList'),
     path('roleStorageAssignEdit/<pk>', RoleAssignEdit.as_view(), name='roleStorageAssignEdit'),
     path('users', UserList.as_view(), name='usersList'),
