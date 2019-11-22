@@ -1,23 +1,21 @@
 from django.contrib import auth
 from django.db import models
 from django.contrib.auth.models import User
-
-class Role(models.Model):
-    role = models.CharField(max_length=15)
-
-    def __str__(self):
-        return '{}'.format(self.role)
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
-class User(models.Model):
-    firstName = models.CharField(max_length=30, null=False)
-    lastName = models.CharField(max_length=30)
-    userName = models.CharField(max_length=15, null=False, unique=True)
-    password = models.CharField(max_length=20, null=False)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
+class Almacen(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.TextField(max_length=500)
 
     def __str__(self):
-        return self.firstName + ' ' + self.lastName
+        return '{}'.format(self.nombre)
+
+#
+# class GroupPermissions(models.Model):
+#     role = models.ForeignKey(auth.models.Group, on_delete=models.CASCADE, null=True)
+#     perms = models.ForeignKey(auth.models.Permission, on_delete=models.CASCADE, null=True)
 
 
 class Storage(models.Model):
@@ -25,14 +23,24 @@ class Storage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
 
-class Almacen(models.Model):
-    nombre = models.CharField(max_length=100)
-    direccion = models.CharField(max_length=500)
-
-
 class Perfil(models.Model):
     usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
-    almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
+    # almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
+    groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)
+
+    @receiver(post_save, sender=User)
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Perfil.objects.create(usuario=instance)
+
+    @receiver(post_save, sender=User)
+    def save_user_profile(sender, instance, created, **kwargs):
+        instance.perfil.save()
+
 
 class SingletonModel(models.Model):
     class Meta:
@@ -47,7 +55,8 @@ class SingletonModel(models.Model):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
+
 class UsuarioAdmin(SingletonModel):
-    #usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100, default='Usuario Administrador')
     identificador = models.CharField(max_length=255, default='ACbcad883c9c3e9d9913a715557dddff99')
+

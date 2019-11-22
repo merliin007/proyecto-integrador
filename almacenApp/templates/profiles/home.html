@@ -2,14 +2,19 @@
 
 {% block title %}Bievenido{% endblock %}
 
-{% block content %}
+{% block header %}
+{% endblock %}
 
+{% block content %}
+<p>{{p}}</p>
     {% if user.is_authenticated %}
         <h1>Hola {{ user.username }}</h1>
-        <a href="{% url 'sign_out' %}">Cerrar sesión</a>
+
     {% else %}
-        <a href="{% url 'sign_up' %}">Registrate</a>
-        <a href="{% url 'sign_in' %}">Iniciar sesión</a>
+        <a href="{% url 'sign_up' %}" role="button" class="btn btn-primary btn-lg btn-block">Registrate</a>
+        <a href="{% url 'sign_in' %}" role="button" class="btn btn-primary btn-lg btn-block">Iniciar sesión</a>
     {% endif %}
+
+
     
 {% endblock content %}

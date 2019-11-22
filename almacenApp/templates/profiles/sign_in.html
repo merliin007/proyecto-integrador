@@ -3,13 +3,38 @@
 {% block title %}Inicia Sesión{% endblock %}
 
 {% block content %}
-<div class="col-lg-8 col-md-5 col-sm-8">
-    <form method="POST">
-        {% csrf_token %}
-        {{form.as_p}}
-        <button type="submit" class="btn btn-primary">Entrar</button>
-        <a href="{% url 'home' %}" role="button" class="btn btn-secondary">Cancelar</a>
-    </form>
+<div class="container">
+    <div class="row">
+       <p></p>
+    </div>
+    <div class="row">
+        <div class="col-lg-8 col-md-5 col-sm-8">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input class="form-control" type="text" name="username" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input class="form-control" type="password" name="password" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
+                <a href="{% url 'home' %}" role="button" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+
 </div>
+
+
 
 {% endblock content %}

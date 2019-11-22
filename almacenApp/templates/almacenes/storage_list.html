@@ -5,7 +5,8 @@
 </p>
 {% endblock%}
 {% block content %}
-{% if object_list %}
+{% if storage %}
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -16,14 +17,14 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in object_list %}
+
+        {% for stg in storage %}
         <tr>
-            <td>{{user.id}}</p></td>
-            <td>{{user.nombre}}</p></td>
-            <td>{{user.direccion}}</p></td>
+            <td>{{stg.id}}</p></td>
+            <td>{{stg.nombre}}</p></td>
+            <td>{{stg.direccion}}</p></td>
             <td>
-                <a class="btn btn-outline-warning" href="#" role="button">Editar</a>
-                <a class="btn btn-outline-danger" href="#" role="button">Eliminar</a>
+                <a class="btn btn-outline-warning" href="{% url 'storageEdit' stg.id %}" role="button">Editar</a>
             </td>
         </tr>
         {% endfor %}
@@ -32,4 +33,7 @@
         {% endif %}
 </tbody>
 </table>
+<div id="popup" class="modal fade" role="dialog">
+
+</div>
 {% endblock %}

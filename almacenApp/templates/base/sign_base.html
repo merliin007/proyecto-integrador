@@ -8,7 +8,16 @@
     <title>{% block title%}Mi Almacen {% endblock %}</title>
 </head>
 <body>
+{% block nav %}
+<nav class="navbar navbar-dark bg-dark navbar-expand-lg" >
+    <a class="navbar-brand" href="#">Almacén</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</nav>
+{% endblock %}
 {% block header %}
+<div class="container"><p><h4>Ingresar al sistema</h4></p></div>
 {% endblock %}
 {% block content %}
 

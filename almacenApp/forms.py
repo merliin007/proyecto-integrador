@@ -2,45 +2,29 @@
 # maac35@gmail.com - nov 2019
 from betterforms.multiform import MultiModelForm
 from django import forms
-from django.contrib import auth
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User, Group
 from django.forms import ModelForm
+from almacenApp.models import Perfil, Almacen
 
-from almacenApp.models import User, Perfil
 
-
-class UsuarioForm(forms.ModelForm):
-
+class RoleForm(forms.ModelForm):
     class Meta:
-        model = User
+        model = Group
         fields = [
-            'firstName',
-            'lastName',
-            'userName',
-            'password',
-            'role',
+            'name',
         ]
-
         labels = {
-            'firstName': 'Nombre',
-            'lastName': 'Apellido',
-            'userName': 'User Name',
-            'password': 'Password',
-            'role': 'Rol',
+            'name': 'Rol',
         }
-
-        widgets = {
-            'firstName':    forms.TextInput(attrs={'class': 'form-control'}),
-            'lastName':     forms.TextInput(attrs={'class': 'form-control'}),
-            'userName':     forms.TextInput(attrs={'class': 'form-control'}),
-            'password':     forms.PasswordInput(attrs={'class': 'form-control'}),
-            'role':         forms.Select(attrs={'class': 'form-control'}),
+        widgets ={
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
 class UserModelForm(UserCreationForm):
     class Meta:
-        model = auth.models.User
+        model = User
         fields = [
             'username',
             'email',
@@ -72,11 +56,88 @@ class UserModelForm(UserCreationForm):
 class PerfilModelForm(ModelForm):
     class Meta:
         model = Perfil
-        fields = ['almacen'] # No agregar el campo 'persona'
+        fields = [
+            'usuario',
+            'almacen',
+            'groups',
+        ]
+        labels = {
+            'usuario': 'Usuario',
+            'almacen': 'Almacen',
+            'groups': 'Rol',
+        }
+        widgets ={
+            'usuario': forms.Select(attrs={'class':'form-control'}),
+            'almacen': forms.Select(attrs={'class':'form-control'}),
+            'groups': forms.Select(attrs={'class':'form-control'}),
+        }
 
 
-class PerfilUserModelForm(MultiModelForm):
-    form_classes = {
-        'user': UserModelForm,
-        'perfil': PerfilModelForm,
-    }
+class PerfilModelFormEdit(ModelForm):
+    class Meta:
+        model = Perfil
+        fields = [
+            'usuario',
+            'almacen',
+            'groups',
+        ]
+        labels = {
+            'usuario': 'Usuario',
+            'almacen': 'Almacen',
+            'groups': 'Rol',
+        }
+        widgets ={
+            'usuario': forms.Select(attrs={'class':'form-control'}),
+            'almacen': forms.Select(attrs={'class':'form-control'}),
+            'groups': forms.Select(attrs={'class':'form-control'}),
+        }
+
+
+class StorageForm(ModelForm):
+    class Meta:
+        model = Almacen
+        fields =[
+            'nombre',
+            'direccion',
+        ]
+        labels ={
+            'nombre': 'Nombre del Almacen',
+            'direccion': 'Direccion'
+        }
+        widgets={
+            'nombre': forms.TextInput(attrs={'class':'form-control'}),
+            'direccion': forms.Textarea(attrs={'class':'form-control'}),
+        }
+
+
+class StorageFormSimple(ModelForm):
+    class Meta:
+        model = Almacen
+        fields =[
+            'nombre',
+        ]
+        labels ={
+            'nombre': 'Nombre del Almacen',
+        }
+        widgets={
+            'nombre': forms.Select(attrs={'class':'form-control'}),
+        }
+
+
+class GroupPermissionsForm(ModelForm):
+    pass
+    # class Meta:
+    #     model = GroupPermissions
+    #     fields = [
+    #         'groups',
+    #         'perms',
+    #     ]
+    #     labels = {
+    #         'groups': 'Rol',
+    #         'perms': 'Permisos',
+    #     }
+    #     widgets = {
+    #         'groups': forms.Select(attrs={'class':'form-control'}),
+    #         'perms': forms.SelectMultiple(),
+    #     }
+

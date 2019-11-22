@@ -1,0 +1,17 @@
+{% extends 'base/base.html' %}
+{% block header %}
+<h4>Registrar nuevo almacen</h4>
+{% endblock %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            {{form.as_p}}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'storages' %}" role="button" class="btn btn-secondary">Cancelar</a>
+
+</form>
+{% endblock %}

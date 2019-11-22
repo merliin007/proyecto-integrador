@@ -5,11 +5,13 @@
 {% endblock %}
 {% block content %}
 <form method="post">
-    {% csrf_token %}
-    <div class="col-lg-8 col-md-5 col-sm-8">
-        {{form.as_p}}
-    </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
+	{% csrf_token %}
+	{{form.as_p}}
+	<button type="submit" class="btn btn-primary">Guardar</button>
     <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+
 </form>
 {% endblock %}
+
+
+

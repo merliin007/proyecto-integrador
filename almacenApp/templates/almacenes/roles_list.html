@@ -8,14 +8,18 @@
     <tr>
         <td>Role Id</td>
         <td>Role</td>
+        <td>Acciones</td>
     </tr>
     </thead>
     <tbody>
-        {% if roles_obj %}
-        {% for role in roles_obj %}
+        {% if object_list %}
+        {% for role in object_list %}
         <tr>
             <td>{{role.id}}</td>
-            <td>{{role.role}}</td>
+            <td>{{role.name}}</td>
+            <td><a class="btn btn-outline-warning" href="{% url 'roleEdit' role.id %}" role="button">Editar</a>
+                <a class="btn btn-outline-secondary" href="" role="button">Permisos</a>
+            </td>
         </tr>
         {% endfor %}
         {% else %}
