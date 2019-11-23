@@ -1,6 +1,6 @@
 # Created by Miguel Angel Aguilar
 # maac35@gmail.com - nov 2019
-
+from MySQLdb import IntegrityError
 from django.contrib.auth import update_session_auth_hash, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
@@ -13,6 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
+
 from almacenApp.models import Almacen, Perfil, UsuarioAdmin
 from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
@@ -29,33 +30,29 @@ class SignUpView(CreateView):
     template_name = 'profiles/profile_form.html'
 
     def form_valid(self, form):
-        form.save()
-        user = form.cleaned_data.get('username')
-        pwd = form.cleaned_data.get('password1')
-        usuario = authenticate(username=user, password=pwd)
-        login(self.request, usuario)
+        # pdb.set_trace()
+        try:
+            form.save()
+            user = form.cleaned_data.get('username')
+            pwd = form.cleaned_data.get('password1')
 
-        # userAdmin = UsuarioAdmin
-        # userAdmin.usuario = user
-        # userAdmin.load()
-        return redirect(reverse_lazy('home'))
+            usuario = authenticate(username=user, password=pwd)
+            login(self.request, usuario)
 
+            if form.cleaned_data.get('is_superuser') is True:
+                user = UsuarioAdmin
+                user.usuario = user
+                obj, created = user.load()
+                if created is True:
+                    profile = Perfil.objects.get(usuario_id=usuario.id)
+                    profile.admin = obj
+                    profile.save()
 
-class SignUpSuperAdminView(CreateView):
-    model = Perfil
-    form_class = UserModelForm
-    template_name = 'profiles/profile_form.html'
+        except IntegrityError:
+            profile = Perfil.objects.get(usuario_id=usuario.id)
+            profile.usuario.is_superuser = False
+            profile.save()
 
-    def form_valid(self, form):
-        form.save()
-        user = form.cleaned_data.get('username')
-        pwd = form.cleaned_data.get('password1')
-        # usuario = authenticate(username=user, password=pwd)
-        # login(self.request, usuario)
-
-        userAdmin = UsuarioAdmin()
-        userAdmin.usuario = user
-        userAdmin.load()
         return redirect(reverse_lazy('home'))
 
 
@@ -120,12 +117,11 @@ class UserList(LoginRequiredMixin, ListView):
     template_name = 'almacenes/users_list.html'
 
     def get(self, request, *args, **kwargs):
-        try:
-            group = request.user.perfil.groups.name
-        except:
-            group = ""
 
-        if ADMIN_ROLE in group or MANAGER_ROLE in group:
+        superuser = Authorize(request).logged_in_user_superadmin()
+        group = Authorize(request).get_logged_in_groups()
+
+        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
             context = {
                 'users': self.model.objects.all(),
             }
@@ -165,8 +161,10 @@ class StorageList(LoginRequiredMixin, ListView):
     #     return context
 
     def get(self, request, *args, **kwargs):
-        group = request.user.perfil.groups.name
-        if ADMIN_ROLE in group or MANAGER_ROLE in group:
+        superuser = Authorize(request).logged_in_user_superadmin()
+        group = Authorize(request).get_logged_in_groups()
+
+        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
             context = {
                 'storage': self.model.objects.all(),
             }
@@ -246,6 +244,7 @@ class RoleAssignEdit(LoginRequiredMixin, UpdateView):
         else:
             self.render_to_response(self.get_context_data(form=form))
 
+
 #
 # class GroupPermissionsEdit(LoginRequiredMixin, UpdateView):
 #     model = GroupPermissions
@@ -259,3 +258,20 @@ class RoleAssignEdit(LoginRequiredMixin, UpdateView):
 #     form_class = GroupPermissionsForm
 #     template_name = 'almacenes/group_permissions.html'
 #     success_url = reverse_lazy('rolesList')
+
+class Authorize:
+    _request = None
+
+    def __init__(self, request):
+        self._request = request
+
+    def logged_in_user_superadmin(self):
+        perf = Perfil.objects.get(usuario=self._request.user.id)
+        return perf.admin_id == True
+
+    def get_logged_in_groups(self):
+        try:
+            group = self._request.user.perfil.groups.name
+        except:
+            group = ""
+        return group

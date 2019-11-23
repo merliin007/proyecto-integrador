@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+import pdb
 
 class Almacen(models.Model):
     nombre = models.CharField(max_length=100)
@@ -23,11 +23,35 @@ class Storage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
 
-class Perfil(models.Model):
+class SingletonModel(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        # obj, created = cls.objects.get_or_create(pk=1)
+        # pdb.set_trace()
+        obj, created = cls.objects.get_or_create()
+        return obj, created
+
+
+class UsuarioAdmin(SingletonModel):
+    nombre = models.CharField(max_length=100, default='Usuario Administrador')
+    identificador = models.CharField(max_length=255, default='ACbcad883c9c3e9d9913a715557dddff99')
+
+
+class Perfil(SingletonModel):
     usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
-    # almacen = models.ForeignKey('Almacen', on_delete=models.SET_NULL, null=True)
     almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True)
+    admin = models.OneToOneField(UsuarioAdmin, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)
@@ -42,26 +66,5 @@ class Perfil(models.Model):
         instance.perfil.save()
 
 
-class SingletonModel(models.Model):
-    class Meta:
-        abstract = True
 
-    def save(self, *args, **kwargs):
-        self.pk = 1
-        super(SingletonModel, self).save(*args, **kwargs)
-
-    def delete(self, *args, **kwargs):
-        pass
-
-    @classmethod
-    def load(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
-        return obj
-
-
-class UsuarioAdmin(SingletonModel):
-    perfil = models.OneToOneField(Perfil, on_delete=models.CASCADE, null=True)
-    nombre = models.CharField(max_length=100, default='Usuario Administrador')
-    identificador = models.CharField(max_length=255, default='ACbcad883c9c3e9d9913a715557dddff99')
-    # groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True, default=1)
 

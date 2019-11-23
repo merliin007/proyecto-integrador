@@ -32,6 +32,7 @@ class UserModelForm(UserCreationForm):
             'last_name',
             'password1',
             'password2',
+            'is_superuser',
         ]
 
         labels = {
@@ -41,6 +42,7 @@ class UserModelForm(UserCreationForm):
             'last_name': 'Apellido',
             'password1': 'Password',
             'password2': 'Confirma Password',
+            'is_superuser': 'Super usuario',
         }
 
         widgets ={
@@ -50,6 +52,7 @@ class UserModelForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'is_superuser': forms.CheckboxInput(),
         }
 
 
