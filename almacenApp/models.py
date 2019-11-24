@@ -1,9 +1,10 @@
+from django.contrib.auth.models import User
 from django.contrib import auth
 from django.db import models
-from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import pdb
+
 
 class Almacen(models.Model):
     nombre = models.CharField(max_length=100)
@@ -36,9 +37,7 @@ class SingletonModel(models.Model):
 
     @classmethod
     def load(cls):
-        # obj, created = cls.objects.get_or_create(pk=1)
-        # pdb.set_trace()
-        obj, created = cls.objects.get_or_create()
+        obj, created = cls.objects.get_or_create(pk=1)
         return obj, created
 
 
@@ -47,11 +46,11 @@ class UsuarioAdmin(SingletonModel):
     identificador = models.CharField(max_length=255, default='ACbcad883c9c3e9d9913a715557dddff99')
 
 
-class Perfil(SingletonModel):
-    usuario = models.OneToOneField(auth.models.User, on_delete=models.CASCADE)
+class Perfil(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True)
-    admin = models.OneToOneField(UsuarioAdmin, on_delete=models.CASCADE, null=True)
+    is_admin = models.BooleanField(null=True)
 
     def __str__(self):
         return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)
@@ -65,6 +64,11 @@ class Perfil(SingletonModel):
     def save_user_profile(sender, instance, created, **kwargs):
         instance.perfil.save()
 
-
+# class Usuario(SingletonModel, User):
+#     class Meta:
+#         proxy = True
+#
+#     def __str__(self):
+#         return '{} {}'.format(self.first_name, self.last_name)
 
 

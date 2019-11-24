@@ -25,35 +25,33 @@ from almacenes.settings import ADMIN_ROLE, MANAGER_ROLE
 
 
 class SignUpView(CreateView):
-    model = Perfil
+    model = User
     form_class = UserModelForm
     template_name = 'profiles/profile_form.html'
 
     def form_valid(self, form):
-        # pdb.set_trace()
-        try:
-            form.save()
-            user = form.cleaned_data.get('username')
-            pwd = form.cleaned_data.get('password1')
+        result = {'message':''}
+        if form.cleaned_data.get('is_superuser') is True:
+            admin_user = UsuarioAdmin
+            obj, created = admin_user.load()
 
-            usuario = authenticate(username=user, password=pwd)
-            login(self.request, usuario)
-
-            if form.cleaned_data.get('is_superuser') is True:
-                user = UsuarioAdmin
-                user.usuario = user
-                obj, created = user.load()
-                if created is True:
-                    profile = Perfil.objects.get(usuario_id=usuario.id)
-                    profile.admin = obj
-                    profile.save()
-
-        except IntegrityError:
-            profile = Perfil.objects.get(usuario_id=usuario.id)
-            profile.usuario.is_superuser = False
-            profile.save()
-
-        return redirect(reverse_lazy('home'))
+            if created is True:
+                # usuario = authenticate(username=username, password=password)
+                # login(self.request, usuario)
+                new_user = form.save()
+                latest_user = User.objects.last()
+                user_perfil = Perfil.objects.get(usuario=latest_user)
+                user_perfil.is_admin = True
+                user_perfil.save()
+                login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+            else:
+                result = {
+                    'message':'Super User already exists!'
+                }
+        else:
+            new_user = form.save()
+            login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+        return redirect(reverse_lazy('usersList'), result)
 
 
 class PasswordChange(LoginRequiredMixin, PasswordContextMixin, FormView):
@@ -117,18 +115,22 @@ class UserList(LoginRequiredMixin, ListView):
     template_name = 'almacenes/users_list.html'
 
     def get(self, request, *args, **kwargs):
+        print(kwargs)
+        print(args)
 
-        superuser = Authorize(request).logged_in_user_superadmin()
-        group = Authorize(request).get_logged_in_groups()
+        # superuser = Authorize(request).logged_in_user_superadmin()
+        # group = Authorize(request).get_logged_in_groups()
+        #
+        # if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+        #     context = {
+        #         'users': self.model.objects.all(),
+        #     }
+        #     # pdb.set_trace()
+        #     return render(request, self.template_name, context)
+        # else:
+        #     return render(request, 'almacenes/403.html')
 
-        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
-            context = {
-                'users': self.model.objects.all(),
-            }
-            # pdb.set_trace()
-            return render(request, self.template_name, context)
-        else:
-            return render(request, 'almacenes/403.html')
+        return render(request, self.template_name, {'users': self.model.objects.all(),})
 
 
 class UserRegister(CreateView):

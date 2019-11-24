@@ -42,7 +42,7 @@ class UserModelForm(UserCreationForm):
             'last_name': 'Apellido',
             'password1': 'Password',
             'password2': 'Confirma Password',
-            'is_superuser': 'Super usuario',
+            'is_superuser': 'Usuario Administrador',
         }
 
         widgets ={
@@ -52,7 +52,7 @@ class UserModelForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'is_superuser': forms.CheckboxInput(),
+            'is_superuser': forms.CheckboxInput(attrs={'checked':False}),
         }
 
 
@@ -126,21 +126,4 @@ class StorageFormSimple(ModelForm):
             'nombre': forms.Select(attrs={'class':'form-control'}),
         }
 
-
-class GroupPermissionsForm(ModelForm):
-    pass
-    # class Meta:
-    #     model = GroupPermissions
-    #     fields = [
-    #         'groups',
-    #         'perms',
-    #     ]
-    #     labels = {
-    #         'groups': 'Rol',
-    #         'perms': 'Permisos',
-    #     }
-    #     widgets = {
-    #         'groups': forms.Select(attrs={'class':'form-control'}),
-    #         'perms': forms.SelectMultiple(),
-    #     }
 
