@@ -23,6 +23,7 @@ urlpatterns = [
 
     path('home/', HomeView.as_view(), name='home'),
     path('signup/', SignUpView.as_view(), name='sign_up'),
+
     path('signin/', SignInView.as_view(), name='sign_in'),
     path('signout/', SignOutView.as_view(), name='sign_out'),
     path('password-change/', PasswordChangeView.as_view(), name='password_change'),
