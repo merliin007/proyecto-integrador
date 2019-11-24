@@ -214,6 +214,19 @@ class RoleAssignList(LoginRequiredMixin, ListView):
     model = Perfil
     template_name = 'user_role_list.html'
 
+    def get(self, request, *args, **kwargs):
+        superuser = Authorize(request).logged_in_user_superadmin()
+        group = Authorize(request).get_logged_in_groups()
+
+        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+            context = {
+                'perfil_list': self.model.objects.all(),
+            }
+            # pdb.set_trace()
+            return render(request, self.template_name, context)
+        else:
+            return render(request, 'almacenes/403.html')
+
 
 class RoleAssignEdit(LoginRequiredMixin, UpdateView):
     model = Perfil
