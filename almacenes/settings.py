@@ -54,6 +54,8 @@ MIDDLEWARE = [
     'preventconcurrentlogins.middleware.PreventConcurrentLoginsMiddleware',
 ]
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
 ROOT_URLCONF = 'almacenes.urls'
 
 TEMPLATES = [

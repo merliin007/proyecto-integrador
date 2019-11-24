@@ -1,7 +1,7 @@
 # Created by Miguel Angel Aguilar 
 # maac35@gmail.com - nov 2019
 from django.urls import path
-from almacenApp.views import UserList, UserRegister, UserUpdate, UserDelete, HomeView, SignUpView, \
+from almacenApp.views import UserList, UserUpdate, UserDelete, HomeView, SignUpView, \
     SignInView, SignOutView, StorageList, RoleCreate, RoleList, RoleUpdate, StorageCreate, StorageEdit, \
     StorageDeletion, RoleAssignList, RoleAssignEdit, IndexView
 
@@ -16,7 +16,6 @@ urlpatterns = [
     path('roleAssign/', RoleAssignList.as_view(), name='roleAssignList'),
     path('roleStorageAssignEdit/<pk>', RoleAssignEdit.as_view(), name='roleStorageAssignEdit'),
     path('users', UserList.as_view(), name='usersList'),
-    path('userAdd', UserRegister.as_view(), name='usersAdd'),
     path('userEdit/<pk>/', UserUpdate.as_view(), name='userEdit'),
     path('userDelete/<pk>/', UserDelete.as_view(), name='userDelete'),
     path('userRoleEdit/<pk>', RoleAssignEdit.as_view(), name='userRoleEdit'),

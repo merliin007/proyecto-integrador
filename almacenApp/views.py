@@ -15,9 +15,9 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
 
 from almacenApp.models import Almacen, Perfil, UsuarioAdmin
-from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit
+from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit, UserEditModelForm
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
-
+from django.contrib import messages
 from django.urls import reverse_lazy
 import pdb
 
@@ -30,28 +30,27 @@ class SignUpView(CreateView):
     template_name = 'profiles/profile_form.html'
 
     def form_valid(self, form):
-        result = {'message':''}
         if form.cleaned_data.get('is_superuser') is True:
             admin_user = UsuarioAdmin
             obj, created = admin_user.load()
 
             if created is True:
-                # usuario = authenticate(username=username, password=password)
-                # login(self.request, usuario)
                 new_user = form.save()
-                latest_user = User.objects.last()
-                user_perfil = Perfil.objects.get(usuario=latest_user)
-                user_perfil.is_admin = True
-                user_perfil.save()
+                messages.success(self.request, f'Usuario {new_user} creado exitosamente!')
                 login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
             else:
-                result = {
-                    'message':'Super User already exists!'
-                }
+                # Admin exists yet creating a new non-admin user
+                new_user = form.save(commit=False)
+                new_user.is_superuser = False
+                new_user.save()
+                messages.error(self.request, f'Userio Admin ya existe, creado usuario normal {new_user}')
+                login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
         else:
             new_user = form.save()
+            messages.success(self.request, f'Usuario {new_user} creado exitosamente!')
             login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
-        return redirect(reverse_lazy('usersList'), result)
+
+        return redirect(reverse_lazy('usersList'))
 
 
 class PasswordChange(LoginRequiredMixin, PasswordContextMixin, FormView):
@@ -115,42 +114,38 @@ class UserList(LoginRequiredMixin, ListView):
     template_name = 'almacenes/users_list.html'
 
     def get(self, request, *args, **kwargs):
-        print(kwargs)
-        print(args)
 
-        # superuser = Authorize(request).logged_in_user_superadmin()
-        # group = Authorize(request).get_logged_in_groups()
-        #
-        # if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
-        #     context = {
-        #         'users': self.model.objects.all(),
-        #     }
-        #     # pdb.set_trace()
-        #     return render(request, self.template_name, context)
-        # else:
-        #     return render(request, 'almacenes/403.html')
+        superuser = Authorize(request).logged_in_user_superadmin()
+        group = Authorize(request).get_logged_in_groups()
 
-        return render(request, self.template_name, {'users': self.model.objects.all(),})
-
-
-class UserRegister(CreateView):
-    model = User
-    form_class = UserModelForm
-    template_name = 'almacenes/users_form.html'
-    success_url = reverse_lazy('usersList')
+        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+            context = {
+                'users': self.model.objects.all(),
+            }
+            # pdb.set_trace()
+            return render(request, self.template_name, context)
+        else:
+            return render(request, 'almacenes/403.html')
 
 
 class UserUpdate(LoginRequiredMixin, UpdateView):
     model = User
-    form_class = UserModelForm
+    form_class = UserEditModelForm
     template_name = 'almacenes/users_form.html'
-    success_url = reverse_lazy('usersList')
+
+    def get_success_url(self):
+        messages.success(self.request, 'Usuario guardado exitosamente!')
+        return reverse_lazy('usersList')
 
 
 class UserDelete(LoginRequiredMixin, DeleteView):
     model = User
     template_name = 'almacenes/user_delete.html'
-    success_url = reverse_lazy('usersList')
+    # success_url = reverse_lazy('usersList')
+
+    def get_success_url(self):
+        messages.success(self.request, 'Usuario eliminado exitosamente!')
+        return reverse_lazy('usersList')
 
 
 class StorageList(LoginRequiredMixin, ListView):
@@ -268,8 +263,7 @@ class Authorize:
         self._request = request
 
     def logged_in_user_superadmin(self):
-        perf = Perfil.objects.get(usuario=self._request.user.id)
-        return perf.admin_id == True
+        return self._request.user.is_superuser
 
     def get_logged_in_groups(self):
         try:

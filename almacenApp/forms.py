@@ -56,6 +56,32 @@ class UserModelForm(UserCreationForm):
         }
 
 
+class UserEditModelForm(ModelForm):
+    class Meta:
+        model = User
+        exclude = ('password1', 'password2',)
+        fields = [
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+        ]
+
+        labels = {
+            'username': 'User Name',
+            'email': 'Email',
+            'first_name': 'Nombre',
+            'last_name': 'Apellido',
+        }
+
+        widgets ={
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
 class PerfilModelForm(ModelForm):
     class Meta:
         model = Perfil

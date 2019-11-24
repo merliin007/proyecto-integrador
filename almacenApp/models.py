@@ -50,7 +50,6 @@ class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ForeignKey(auth.models.Group, on_delete=models.SET_NULL, null=True, blank=True)
-    is_admin = models.BooleanField(null=True)
 
     def __str__(self):
         return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)

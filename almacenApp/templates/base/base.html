@@ -28,7 +28,7 @@
                             Usuarios
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="{% url 'usersAdd' %}">Nuevo</a>
+                            <a class="dropdown-item" href="{% url 'sign_up' %}">Nuevo</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{% url 'usersList' %}">Listar</a>
                             <div class="dropdown-divider"></div>
@@ -76,6 +76,8 @@
         <div>
             {% block header %}
             <h4>Header base</h4>
+            {% endblock %}
+            {% block messages %}
             {% endblock %}
             {% block content %}
             <h4>Contenido base</h4>
