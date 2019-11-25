@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import LoginView, LogoutView, PasswordContextMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect, render_to_response
 from django.utils.decorators import method_decorator
@@ -27,10 +28,23 @@ import pdb
 from almacenes.settings import ADMIN_ROLE, MANAGER_ROLE
 
 
-class SignUpView(CreateView):
+class SignUpView(LoginRequiredMixin, CreateView):
     model = User
     form_class = UserModelForm
     template_name = 'profiles/profile_form.html'
+
+    def get(self, request):
+        superuser = Authorize(request).logged_in_user_superadmin()
+        group = Authorize(request).get_logged_in_groups()
+
+        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+            context = {
+                'form': self.form_class,
+            }
+            return render(request, self.template_name, context)
+        else:
+            # return HttpResponseForbidden()
+            raise PermissionDenied
 
     def form_valid(self, form):
         if form.cleaned_data.get('is_superuser') is True:
