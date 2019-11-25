@@ -4,7 +4,7 @@ from betterforms.multiform import MultiModelForm
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 from almacenApp.models import Perfil, Almacen
 
 
@@ -151,5 +151,40 @@ class StorageFormSimple(ModelForm):
         widgets={
             'nombre': forms.Select(attrs={'class':'form-control'}),
         }
+
+
+class UserEditPermissionForm(ModelForm):
+    class Meta:
+        model = Perfil
+        fields =[
+            'usuario',
+            'user_perms',
+        ]
+        labels = {
+            'usuario': 'Usuario',
+            'user_perms': 'Permisos',
+        }
+        widgets ={
+            'usuario': forms.TextInput(attrs={'class': 'form-control'}),
+            'user_perms': forms.CheckboxSelectMultiple(),
+        }
+
+
+class UserPermissionsForm(Form):
+
+    model_choices = [
+        ('User', 'Usuario'),
+        ('Group', 'Grupo'),
+        ('Almacen', 'Almacen'),
+    ]
+    modelos = forms.CharField(label='Selecciona el modelo', widget=forms.Select(choices=model_choices, attrs={'class': 'form-control'}))
+    #
+    permission_choices = [
+        ('add_', 'Add'),
+        ('change_', 'Change'),
+        ('delete_', 'Delete'),
+        ('view_', 'View'),
+    ]
+    permissions = forms.CharField(label='Selecciona los permisos', widget=forms.CheckboxSelectMultiple(choices=permission_choices))
 
 

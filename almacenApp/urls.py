@@ -3,7 +3,7 @@
 from django.urls import path
 from almacenApp.views import UserList, UserUpdate, UserDelete, HomeView, SignUpView, \
     SignInView, SignOutView, StorageList, RoleCreate, RoleList, RoleUpdate, StorageCreate, StorageEdit, \
-    StorageDeletion, RoleAssignList, RoleAssignEdit, IndexView
+    StorageDeletion, RoleAssignList, RoleAssignEdit, IndexView, UserPermissionsEdit, UserPermissionsClear
 
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 
@@ -19,6 +19,8 @@ urlpatterns = [
     path('userEdit/<pk>/', UserUpdate.as_view(), name='userEdit'),
     path('userDelete/<pk>/', UserDelete.as_view(), name='userDelete'),
     path('userRoleEdit/<pk>', RoleAssignEdit.as_view(), name='userRoleEdit'),
+    path('userPermission/<pk>', UserPermissionsEdit.as_view(), name='userPermissionEdit'),
+    path('userPermissionClear/<pk>', UserPermissionsClear.as_view(), name='userPermissionClear'),
 
     path('home/', HomeView.as_view(), name='home'),
     path('signup/', SignUpView.as_view(), name='sign_up'),

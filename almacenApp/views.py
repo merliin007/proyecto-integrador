@@ -2,11 +2,12 @@
 # maac35@gmail.com - nov 2019
 from MySQLdb import IntegrityError
 from django.contrib.auth import update_session_auth_hash, authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User, Group, Permission
 from django.contrib.auth.views import LoginView, LogoutView, PasswordContextMixin
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect, render_to_response
 from django.utils.decorators import method_decorator
@@ -14,8 +15,10 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic.base import View
 
+from almacenApp.decorators import super_user_required
 from almacenApp.models import Almacen, Perfil, UsuarioAdmin
-from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit, UserEditModelForm
+from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit, UserEditModelForm, \
+    UserPermissionsForm
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 from django.contrib import messages
 from django.urls import reverse_lazy
@@ -109,23 +112,25 @@ class IndexView(LoginRequiredMixin, TemplateView):
     template_name = 'almacenes/index.html'
 
 
-class UserList(LoginRequiredMixin, ListView):
+class UserList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+    permission_required = 'almacenApp.view_almacen'
+    # permission_required = 'auth.view_user'
+
     model = User
     template_name = 'almacenes/users_list.html'
 
-    def get(self, request, *args, **kwargs):
-
-        superuser = Authorize(request).logged_in_user_superadmin()
-        group = Authorize(request).get_logged_in_groups()
-
-        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
-            context = {
-                'users': self.model.objects.all(),
-            }
-            # pdb.set_trace()
-            return render(request, self.template_name, context)
-        else:
-            return render(request, 'almacenes/403.html')
+    #### @permission_required('user.view_user', login_url='sign_in')
+    # def get(self, request, *args, **kwargs):
+    #     superuser = Authorize(request).logged_in_user_superadmin()
+    #     group = Authorize(request).get_logged_in_groups()
+    #
+    #     if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+    #         context = {
+    #             'users': self.model.objects.all(),
+    #         }
+    #         return render(request, self.template_name, context)
+    #     else:
+    #         return render(request, 'almacenes/403.html')
 
 
 class UserUpdate(LoginRequiredMixin, UpdateView):
@@ -146,6 +151,74 @@ class UserDelete(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         messages.success(self.request, 'Usuario eliminado exitosamente!')
         return reverse_lazy('usersList')
+
+
+class UserPermissionsClear(LoginRequiredMixin, DeleteView):
+    template_name = 'almacenes/user_delete.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, {'permiso':True, 'object': User.objects.get(id=kwargs['pk'])})
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(id=kwargs['pk'])
+        user.user_permissions.clear()
+        messages.success(self.request, 'Permisos de usuario borrados')
+        return HttpResponseRedirect(reverse_lazy('usersList'))
+
+
+# @method_decorator([super_user_required], name='dispatch')
+class UserPermissionsEdit(View):
+
+    template_name = 'almacenes/user_permission_form.html'
+
+    def get(self, request, *args, **kwargs):
+        form = UserPermissionsForm
+        context = {
+            'form': form,
+            'perms': User.objects.get(id=kwargs['pk']).get_all_permissions(),
+            'is_admin':User.objects.get(id=kwargs['pk']).is_superuser,
+            'id':kwargs['pk'],
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = UserPermissionsForm(request.POST)
+        unwanted_chars = ['\'', '[', ']', '\"']
+        if form.is_valid():
+            user = User.objects.get(id=kwargs['pk'])
+            mod = form.cleaned_data.get('modelos')
+            modelo = getContentType(mod)
+            permisos = form.cleaned_data.get('permissions')
+            for i in unwanted_chars:
+                permisos = permisos.replace(i, '')
+            selected_perm = permisos.lower().split(',')
+
+            ct = ContentType.objects.get_for_model(modelo, for_concrete_model=False)
+            obj_perm = Permission.objects.filter(content_type=ct)
+            perm_list = self.get_perm_list(obj_perm, selected_perm)
+
+            for pl in perm_list:
+                user.user_permissions.add(pl)
+
+            messages.success(self.request, 'Permisos de usuario actualizados')
+
+        else:
+            messages.error(self.request, 'Hubo un problema actualizando los permisos')
+
+        return HttpResponseRedirect(reverse_lazy('usersList'))
+
+    def get_perm_list(self, obj_perm, selected_perm):
+        new_list = []
+        i = 0
+        while i < len(obj_perm):
+            j = 0
+            while j < len(selected_perm):
+                if selected_perm[j].strip() in obj_perm[i].codename:
+                    new_list.append(obj_perm[i])
+                    break
+                j += 1
+            i += 1
+        return new_list
 
 
 class StorageList(LoginRequiredMixin, ListView):
@@ -284,3 +357,11 @@ class Authorize:
         except:
             group = ""
         return group
+
+def getContentType(m):
+    if m.lower() == 'group':
+        return Group
+    elif m.lower() == 'user':
+        return User
+    else:
+        return Almacen

@@ -1,0 +1,37 @@
+{% extends 'base/base.html' %}
+{% block header %}
+<h4>Editar permisos de usuario</h4>
+{% if perms %}
+<table>
+	<thead>
+	<tr>
+		<td>Permiso</td>
+	</tr>
+	</thead>
+	<tbody>
+		{% for p in perms %}
+		<tr>
+			<td>{{p}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% if is_admin == 0 %}
+	<a href="{% url 'userPermissionClear' id %}" role="button" class="btn btn-danger">Limpiar permisos</a>
+{% endif %}
+{% endif %}
+{% endblock %}
+{% block content %}
+<p></p>
+<div class="container">
+<form method="post">
+	{% csrf_token %}
+	{{form.as_p}}
+	{% if is_admin == 0 %}
+	<button type="submit" class="btn btn-primary">Guardar</button>
+	{% endif %}
+    <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>
+
+</form>
+</div>
+{% endblock %}

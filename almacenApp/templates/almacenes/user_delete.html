@@ -6,7 +6,11 @@
 <form method="post">
     {% csrf_token %}
     <div class="col-lg-8 col-md-5 col-sm-8">
+        {% if permiso == True%}
+        <h4>¿Desea limpiar los permisos del usuario {{object}}?</h4>
+        {% else %}
         <h4>¿Desea eliminar el registro de {{object}}?</h4>
+        {% endif%}
     </div>
     <button type="submit" class="btn btn-danger">Eliminar</button>
     <a href="{% url 'usersList' %}" role="button" class="btn btn-secondary">Cancelar</a>

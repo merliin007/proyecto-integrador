@@ -12,7 +12,7 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-{% if users %}
+{% if object_list %}
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -25,15 +25,16 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in users %}
+        {% for user in object_list %}
         <tr>
-            <td>{{user.id}}</p></td>
-            <td>{{user.username}}</p></td>
-            <td>{{user.email}}</p></td>
-            <td>{{user.first_name}}</p></td>
-            <td>{{user.last_name}}</p></td>
+            <td>{{user.id}}</td>
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.first_name}}</td>
+            <td>{{user.last_name}}</td>
             <td>
                 <a class="btn btn-outline-warning" href="{% url 'userEdit' user.id %}" role="button">Editar</a>
+                <a class="btn btn-outline-secondary" href="{% url 'userPermissionEdit' user.id %}" role="button">Permisos</a>
                 {% if user.is_superuser == 0 %}
                 <a class="btn btn-outline-danger" href="{% url 'userDelete' user.id %}" role="button">Eliminar</a>
                 {% endif %}
