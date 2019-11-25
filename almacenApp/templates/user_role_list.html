@@ -7,6 +7,7 @@
     <thead>
     <tr>
         <td>Id Perfil</td>
+        <td>Username</td>
         <td>Nombre</td>
         <td>Email</td>
         <td>Rol</td>
@@ -19,6 +20,7 @@
         {% for profile in perfil_list %}
         <tr>
             <td>{{profile.id}}</td>
+            <td>{{profile.usuario.username}}</td>
             <td>{{profile}}</td>
             <td>{{profile.usuario.email}}</td>
             <td>{{profile.groups}}</td>

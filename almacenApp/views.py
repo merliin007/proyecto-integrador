@@ -113,27 +113,13 @@ class IndexView(LoginRequiredMixin, TemplateView):
 
 
 class UserList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
-    permission_required = 'almacenApp.view_almacen'
-    # permission_required = 'auth.view_user'
-
+    permission_required = 'auth.view_user'
     model = User
     template_name = 'almacenes/users_list.html'
 
-    #### @permission_required('user.view_user', login_url='sign_in')
-    # def get(self, request, *args, **kwargs):
-    #     superuser = Authorize(request).logged_in_user_superadmin()
-    #     group = Authorize(request).get_logged_in_groups()
-    #
-    #     if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
-    #         context = {
-    #             'users': self.model.objects.all(),
-    #         }
-    #         return render(request, self.template_name, context)
-    #     else:
-    #         return render(request, 'almacenes/403.html')
 
-
-class UserUpdate(LoginRequiredMixin, UpdateView):
+class UserUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = 'auth.change_user'
     model = User
     form_class = UserEditModelForm
     template_name = 'almacenes/users_form.html'
@@ -143,16 +129,17 @@ class UserUpdate(LoginRequiredMixin, UpdateView):
         return reverse_lazy('usersList')
 
 
-class UserDelete(LoginRequiredMixin, DeleteView):
+class UserDelete(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    permission_required = 'auth.delete_user'
     model = User
     template_name = 'almacenes/user_delete.html'
-    # success_url = reverse_lazy('usersList')
 
     def get_success_url(self):
         messages.success(self.request, 'Usuario eliminado exitosamente!')
         return reverse_lazy('usersList')
 
 
+@method_decorator([super_user_required], name='dispatch')
 class UserPermissionsClear(LoginRequiredMixin, DeleteView):
     template_name = 'almacenes/user_delete.html'
 
@@ -166,7 +153,7 @@ class UserPermissionsClear(LoginRequiredMixin, DeleteView):
         return HttpResponseRedirect(reverse_lazy('usersList'))
 
 
-# @method_decorator([super_user_required], name='dispatch')
+@method_decorator([super_user_required], name='dispatch')
 class UserPermissionsEdit(View):
 
     template_name = 'almacenes/user_permission_form.html'
@@ -221,7 +208,8 @@ class UserPermissionsEdit(View):
         return new_list
 
 
-class StorageList(LoginRequiredMixin, ListView):
+class StorageList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+    permission_required = 'almacenApp.view_almacen'
     model = Almacen
     template_name = 'almacenes/storage_list.html'
 
@@ -244,45 +232,52 @@ class StorageList(LoginRequiredMixin, ListView):
             return render(request, 'almacenes/403.html')
 
 
-class RoleCreate(LoginRequiredMixin, CreateView):
+class RoleCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+    permission_required = 'auth.add_group'
     model = Group
     form_class = RoleForm
     template_name = 'almacenes/role_form.html'
     success_url = reverse_lazy('rolesList')
 
 
-class RoleList(LoginRequiredMixin, ListView):
+class RoleList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
+    permission_required = 'auth.view_group'
     model = Group
     template_name = 'almacenes/roles_list.html'
 
 
-class RoleUpdate(LoginRequiredMixin, UpdateView):
+class RoleUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = 'auth.change_group'
     model = Group
     form_class = RoleForm
     template_name = 'almacenes/role_form.html'
     success_url = reverse_lazy('rolesList')
 
 
-class StorageCreate(LoginRequiredMixin, CreateView):
+class StorageCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
+    permission_required = 'almacenApp.add_almacen'
     model = Almacen
     form_class = StorageForm
     template_name = 'almacenes/storage_form.html'
     success_url = reverse_lazy('storages')
 
 
-class StorageEdit(LoginRequiredMixin, UpdateView):
+class StorageEdit(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = 'almacenApp.change_almacen'
     model = Almacen
     form_class = StorageForm
     template_name = 'almacenes/storage_form.html'
     success_url = reverse_lazy('storages')
 
 
-class StorageDeletion(LoginRequiredMixin, DeleteView):
+class StorageDeletion(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    permission_required = 'almacenApp.delete_almacen'
     model = Almacen
     template_name = 'almacenes/confirm_deletion.html'
     success_url = reverse_lazy('storages')
 
 
+@method_decorator([super_user_required], name='dispatch')
 class RoleAssignList(LoginRequiredMixin, ListView):
     model = Perfil
     template_name = 'user_role_list.html'
@@ -301,6 +296,7 @@ class RoleAssignList(LoginRequiredMixin, ListView):
             return render(request, 'almacenes/403.html')
 
 
+@method_decorator([super_user_required], name='dispatch')
 class RoleAssignEdit(LoginRequiredMixin, UpdateView):
     model = Perfil
     form_class = PerfilModelFormEdit
@@ -328,20 +324,6 @@ class RoleAssignEdit(LoginRequiredMixin, UpdateView):
             self.render_to_response(self.get_context_data(form=form))
 
 
-#
-# class GroupPermissionsEdit(LoginRequiredMixin, UpdateView):
-#     model = GroupPermissions
-#     form_class = GroupPermissionsForm
-#     template_name = 'almacenes/group_permissions.html'
-#     success_url = reverse_lazy('rolesList')
-#
-#
-# class GroupPermissionsCreate(LoginRequiredMixin, CreateView):
-#     model = GroupPermissions
-#     form_class = GroupPermissionsForm
-#     template_name = 'almacenes/group_permissions.html'
-#     success_url = reverse_lazy('rolesList')
-
 class Authorize:
     _request = None
 
@@ -357,6 +339,7 @@ class Authorize:
         except:
             group = ""
         return group
+
 
 def getContentType(m):
     if m.lower() == 'group':
