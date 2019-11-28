@@ -101,6 +101,16 @@ class PerfilModelForm(ModelForm):
             'groups': forms.Select(attrs={'class':'form-control'}),
         }
 
+class PerfilCreateModelForm(ModelForm):
+    class Meta:
+        model = Perfil
+        fields = ['almacen'] # No agregar el campo 'persona'
+
+class PerfilUserModelForm(MultiModelForm):
+    form_classes = {
+        'user': UserModelForm,
+        'perfil': PerfilCreateModelForm,
+    }
 
 class PerfilModelFormEdit(ModelForm):
     class Meta:

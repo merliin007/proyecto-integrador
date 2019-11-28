@@ -38,18 +38,18 @@ class UsuarioAdmin(SingletonModel):
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True, blank=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.SET_NULL, null=True)
     groups = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     user_perms = models.ManyToManyField(Permission, null=True, related_name='perfil')
 
     def __str__(self):
         return '{} {}'.format(self.usuario.first_name, self.usuario.last_name)
 
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            Perfil.objects.create(usuario=instance)
+    # @receiver(post_save, sender=User)
+    # def create_user_profile(sender, instance, created, **kwargs):
+    #     if created:
+    #         Perfil.objects.create(usuario=instance)
 
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, created, **kwargs):
-        instance.perfil.save()
+    # @receiver(post_save, sender=User)
+    # def save_user_profile(sender, instance, created, **kwargs):
+    #     instance.perfil.save()

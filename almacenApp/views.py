@@ -18,7 +18,7 @@ from django.views.generic.base import View
 
 from almacenApp.decorators import super_user_required
 from almacenApp.models import Almacen, Perfil, UsuarioAdmin
-from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilModelFormEdit, UserEditModelForm, \
+from almacenApp.forms import UserModelForm, RoleForm, StorageForm, PerfilUserModelForm, PerfilModelFormEdit, UserEditModelForm, \
     UserPermissionsForm
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView, FormView
 from django.contrib import messages
@@ -30,7 +30,8 @@ from almacenes.settings import ADMIN_ROLE, MANAGER_ROLE
 
 class SignUpView(LoginRequiredMixin, CreateView):
     model = User
-    form_class = UserModelForm
+    # form_class = UserModelForm
+    form_class = PerfilUserModelForm
     template_name = 'profiles/profile_form.html'
 
     def get(self, request):
@@ -47,25 +48,38 @@ class SignUpView(LoginRequiredMixin, CreateView):
             raise PermissionDenied
 
     def form_valid(self, form):
-        if form.cleaned_data.get('is_superuser') is True:
+        if form['user'].cleaned_data.get('is_superuser') is True:
             admin_user = UsuarioAdmin
             obj, created = admin_user.load()
 
             if created is True:
-                new_user = form.save()
-                messages.success(self.request, f'Usuario {new_user} creado exitosamente!')
+
+                new_user = form['user'].save()
+                perfil = form['perfil'].save(commit=False)
+                perfil.usuario = new_user
+                perfil.save()
+
+                messages.success(self.request, f'Usuario Administrador {new_user} creado exitosamente!')
                 login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
             else:
-                # Admin exists yet creating a new non-admin user
-                new_user = form.save(commit=False)
+
+                new_user = form['user'].save(commit=False)
                 new_user.is_superuser = False
                 new_user.save()
+                perfil = form['perfil'].save(commit=False)
+                perfil.usuario = new_user
+                perfil.save()
+
                 messages.error(self.request, f'Userio Admin ya existe, creado usuario normal {new_user}')
-                login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+                #login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
         else:
-            new_user = form.save()
+            new_user = form['user'].save()
+            perfil = form['perfil'].save(commit=False)
+            perfil.usuario = new_user
+            perfil.save()
+
             messages.success(self.request, f'Usuario {new_user} creado exitosamente!')
-            login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
+            #login(self.request, new_user, backend='django.contrib.auth.backends.ModelBackend')
 
         return redirect(reverse_lazy('usersList'))
 
@@ -93,7 +107,12 @@ class PasswordChange(LoginRequiredMixin, PasswordContextMixin, FormView):
         # Updating the password logs out all other sessions for the user
         # except the current one.
         update_session_auth_hash(self.request, form.user)
-        return super().form_valid(form)
+        # return super().form_valid(form)
+        super().form_valid(form)
+        return redirect(reverse_lazy('pwd_change_done'))
+
+class PasswordChangeDone(LoginRequiredMixin, TemplateView):
+    template_name = 'profiles/password_change_done.html'
 
 
 class HomeView(View):
