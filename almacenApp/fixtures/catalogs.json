@@ -19,5 +19,22 @@
 		"fields": {
 			"name": "Visitors"
 		}
+	},
+	{
+		"model": "almacen",
+		"pk": 1,
+		"fields": {
+			"nombre": "Almacen 1",
+			"direccion": "You know how to get there"
+		}
+	},
+	{
+		"model": "almacen",
+		"pk": 2,
+		"fields": {
+			"nombre": "Almacen Z",
+			"direccion": "You know how to get there too"
+		}
 	}
+
 ]
