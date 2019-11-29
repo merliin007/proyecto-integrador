@@ -25,7 +25,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 import pdb
 
-from almacenes.settings import ADMIN_ROLE, MANAGER_ROLE
+from almacenes.settings import ADMIN_ROLE
 
 
 class SignUpView(LoginRequiredMixin, CreateView):
@@ -34,17 +34,16 @@ class SignUpView(LoginRequiredMixin, CreateView):
     form_class = PerfilUserModelForm
     template_name = 'profiles/profile_form.html'
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         superuser = Authorize(request).logged_in_user_superadmin()
         group = Authorize(request).get_logged_in_groups()
 
-        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+        if ADMIN_ROLE in group or superuser:
             context = {
                 'form': self.form_class,
             }
             return render(request, self.template_name, context)
         else:
-            # return HttpResponseForbidden()
             raise PermissionDenied
 
     def form_valid(self, form):
@@ -110,6 +109,7 @@ class PasswordChange(LoginRequiredMixin, PasswordContextMixin, FormView):
         # return super().form_valid(form)
         super().form_valid(form)
         return redirect(reverse_lazy('pwd_change_done'))
+
 
 class PasswordChangeDone(LoginRequiredMixin, TemplateView):
     template_name = 'profiles/password_change_done.html'
@@ -255,7 +255,7 @@ class StorageList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
         superuser = Authorize(request).logged_in_user_superadmin()
         group = Authorize(request).get_logged_in_groups()
 
-        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+        if ADMIN_ROLE in group or superuser:
             context = {
                 'storage': self.model.objects.all(),
             }
@@ -268,9 +268,22 @@ class StorageList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
 class RoleCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):
     permission_required = 'auth.add_group'
     model = Group
-    form_class = RoleForm
     template_name = 'almacenes/role_form.html'
     success_url = reverse_lazy('rolesList')
+
+    def get(self, request, *args, **kwargs):
+        form = RoleForm
+        context = {
+            'form': form,
+            'add':True,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        form = RoleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(self.success_url)
 
 
 class RoleList(PermissionRequiredMixin, LoginRequiredMixin, ListView):
@@ -319,7 +332,7 @@ class RoleAssignList(LoginRequiredMixin, ListView):
         superuser = Authorize(request).logged_in_user_superadmin()
         group = Authorize(request).get_logged_in_groups()
 
-        if ADMIN_ROLE in group or MANAGER_ROLE in group or superuser:
+        if ADMIN_ROLE in group or superuser:
             context = {
                 'perfil_list': self.model.objects.all(),
             }

@@ -1,6 +1,10 @@
 {% extends 'base/base.html' %}
 {% block header %}
-<p><h4>Permisos del rol</h4></p>
+{% if add %}
+<p><h4>Agregar rol</h4></p>
+{% else %}
+<p><h4>Editar rol</h4></p>
+{% endif%}
 {% endblock %}
 {% block content %}
 <form method="post">
